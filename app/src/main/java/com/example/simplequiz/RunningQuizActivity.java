@@ -23,6 +23,7 @@ public class RunningQuizActivity extends ActionBarActivity {
 	private int answersWrong   = 0;
 	private DbQuestionDataSource dbQuestionDataSource;
 	public List<String> questionAnswers;
+
 	public ListView answersView;
 
     public int timeLimit     = 0;
@@ -45,7 +46,7 @@ public class RunningQuizActivity extends ActionBarActivity {
         //AnswersCheckBoxAdapter adapter = new AnswersCheckBoxAdapter(this, questionAnswers);
         //answersView.setAdapter( adapter );
 
-        this.init();
+        this.init( );
     }
 
 
@@ -78,8 +79,7 @@ public class RunningQuizActivity extends ActionBarActivity {
         dbQuestionDataSource.close();
 
     	this.initQuestionList();
-
-    	currentQuestion = -1;
+    	currentQuestion = 0;
     	this.showQuestion();
     }
     
@@ -97,21 +97,20 @@ public class RunningQuizActivity extends ActionBarActivity {
         return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 
-    public void checkAnswer(View view)
+    public void checkAnswer()
     {
         DbQuestion qElement = QuestionList.get(currentQuestion);
         if (qElement.getType().equals("CheckBox") )
         {
-            checkCheckBoxAnswer(view);
+            checkCheckBoxAnswer();
         }
         else
         {
-            checkEditTextAnswer(view);
+            checkEditTextAnswer();
         }
-
     }
 
-    public void checkEditTextAnswer(View view)
+    public void checkEditTextAnswer()
     {
         DbQuestion qElement = QuestionList.get(currentQuestion);
         StringBuilder result = new StringBuilder();
@@ -138,10 +137,9 @@ public class RunningQuizActivity extends ActionBarActivity {
         Toast.makeText(RunningQuizActivity.this, Boolean.toString( qElement.compareAnswer( currentAnswers )), Toast.LENGTH_SHORT).show();
         result.delete(0, result.length());
 
-        this.showQuestion();
     }
 
-    public void checkCheckBoxAnswer(View view)
+    public void checkCheckBoxAnswer()
     {
         DbQuestion qElement = QuestionList.get(currentQuestion);
 
@@ -170,16 +168,38 @@ public class RunningQuizActivity extends ActionBarActivity {
         Toast.makeText(RunningQuizActivity.this, Boolean.toString( qElement.compareAnswer( currentAnswers )), Toast.LENGTH_SHORT).show();
         result.delete(0, result.length());
 
-
-		this.showQuestion();
     }
-    
-    
+
+    public void nextQuestionClick(View view)
+    {
+        this.nextQuestion();
+    }
+    public void prevQuestionClick(View view)
+    {
+        this.prevQuestion();
+    }
+
+    public void nextQuestion()
+    {
+        checkAnswer();
+        currentQuestion++;
+        if (currentQuestion == QuestionList.size() )
+            currentQuestion = 0;
+        showQuestion();
+    }
+
+    public void prevQuestion()
+    {
+        checkAnswer();
+        currentQuestion--;
+        if (currentQuestion < 0  )
+            currentQuestion = QuestionList.size() -1;
+
+        showQuestion();
+    }
+
     public void showQuestion()
     {
-    	currentQuestion++;
-    	if (currentQuestion == QuestionList.size() )
-    		currentQuestion = 0;
 
     	TextView questionView = (TextView) findViewById(R.id.text_question);
 
@@ -194,6 +214,7 @@ public class RunningQuizActivity extends ActionBarActivity {
         if (qElement.getType().equals("CheckBox") )
         {
             ((AnswersCheckBoxAdapter) answersView.getAdapter()).updateAnswers(qElement.getAnswers());
+
         }
 
         if (qElement.getType().equals("EditText") )
