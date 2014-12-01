@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by alexc_000 on 29.11.2014.
- */
 public class DbQuestionDataSource {
     // Database fields
     private SQLiteDatabase database;
@@ -61,6 +58,8 @@ public class DbQuestionDataSource {
         return newQuestion;
     }
 
+
+
     public List<DbQuestion> getAllQuestions() {
         List<DbQuestion> questions = new ArrayList<DbQuestion>();
 
@@ -71,6 +70,30 @@ public class DbQuestionDataSource {
                 null, //groupBy
                 null, //having
                 null); //orderBy
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            DbQuestion question = cursorToQuestion(cursor);
+            questions.add(question);
+            cursor.moveToNext();
+        }
+        // make sure to close the cursor
+        cursor.close();
+        return questions;
+    }
+
+    public List<DbQuestion> getRandomQuestions( String amount )
+    {
+        List<DbQuestion> questions = new ArrayList<DbQuestion>();
+
+        Cursor cursor = database.query(DbHelper.TABLE_QUESTIONS,
+                allColumns,
+                null,
+                null,
+                null, //groupBy
+                null, //having
+                "RANDOM()",
+                amount);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
