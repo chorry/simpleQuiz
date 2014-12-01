@@ -1,0 +1,91 @@
+<LinearLayout
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      android:id="@+id/scroll" 
+      android:layout_width="fill_parent"
+      android:layout_height="fill_parent"
+      android:orientation="vertical"
+      android:weightSum="100"
+      android:background="@drawable/layout_border_green"
+    >
+
+	<LinearLayout 
+	    android:id="@+id/LinearLayout1"
+	    android:layout_width="fill_parent"
+	    android:layout_height="0dp"
+	    android:orientation="vertical"
+	    android:paddingBottom="@dimen/activity_vertical_margin"
+	    android:paddingLeft="@dimen/activity_horizontal_margin"
+	    android:paddingRight="@dimen/activity_horizontal_margin"
+	    android:paddingTop="@dimen/activity_vertical_margin"
+	    tools:context="com.example.simplequiz.MainActivity"
+        android:layout_weight="45"
+        android:background="@drawable/layout_border_purple"
+        >
+	
+	    <ScrollView
+	        android:layout_width="fill_parent"
+	        android:layout_height="match_parent"
+	        android:layout_marginLeft="15dp"
+	        android:layout_marginRight="15dp"
+	        android:layout_marginTop="20dp"
+	        android:fillViewport="true" >
+	
+	        <TextView
+	            android:id="@+id/text_question"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" />
+	    </ScrollView>
+	</LinearLayout>
+	
+	<LinearLayout
+	    android:id="@+id/LinearLayout2"
+	    android:layout_width="match_parent"
+	    android:layout_height="0dp"
+	    android:orientation="vertical"
+	    android:paddingBottom="@dimen/activity_vertical_margin"
+	    android:paddingLeft="@dimen/activity_horizontal_margin"
+	    android:paddingRight="@dimen/activity_horizontal_margin"
+	    android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_weight="45"
+	    tools:context="com.example.simplequiz.MainActivity"
+        android:background="@drawable/layout_border_blue"
+	    >
+        <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:fillViewport="true"
+            >
+            <ListView
+                android:id="@+id/answers_listview"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="@drawable/layout_border_red"
+                />
+        </ScrollView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="10"
+        android:background="@drawable/layout_border_red"
+    >
+	    <Button
+	        android:id="@+id/button1"
+	        android:layout_width="wrap_content"
+	        android:layout_height="match_parent"
+            android:layout_weight="50"
+	        android:onClick="checkAnswer"
+	        android:text="Answer"
+            android:layout_gravity="center"
+            />
+	    <TextView
+	        android:id="@+id/text_answer"
+	        android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="50"
+            android:layout_gravity="left"
+            />
+	</LinearLayout>
+</LinearLayout>
