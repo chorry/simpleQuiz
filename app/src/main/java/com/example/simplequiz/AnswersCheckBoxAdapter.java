@@ -24,7 +24,6 @@ public class AnswersCheckBoxAdapter extends BaseAdapter implements CompoundButto
             List<String> answers
     		)
     {
-        Log.e("debug","CheckBox constructed");
         this.inflater = LayoutInflater.from(context);
         this.updateAnswers(answers);
     }
@@ -44,8 +43,13 @@ public class AnswersCheckBoxAdapter extends BaseAdapter implements CompoundButto
                 mCheckStates = new SparseBooleanArray(answers.size());
             }
         	mCheckStates.clear();// V/example
-            Log.v("example adapter","New mCheckStates=" + Integer.toString(mCheckStates.size()));
         }
+        notifyDataSetChanged();
+    }
+
+    public void setCheckedStates(SparseBooleanArray s)
+    {
+        this.mCheckStates = s;
         notifyDataSetChanged();
     }
 
@@ -82,13 +86,11 @@ public class AnswersCheckBoxAdapter extends BaseAdapter implements CompoundButto
     	String answer =  answers.get(position);
     	
         //((CheckBox) convertView.findViewById(R.id.answerCheckBox)).setText( answer );
-        Log.v("example adapter","answer stuff for pos"+Integer.toString(position));
     	holder.answerCheckBox.setText(answer);
         holder.answerCheckBox.setTag(position);
         holder.answerCheckBox.setChecked( mCheckStates.get(position, false) );
         this.setChecked(position, holder.answerCheckBox.isChecked()); //lame workaroun
         holder.answerCheckBox.setOnCheckedChangeListener(this);
-        Log.v("example adapter","answer stuff for pos is over");
 
         return convertView;
     }
@@ -103,15 +105,13 @@ public class AnswersCheckBoxAdapter extends BaseAdapter implements CompoundButto
     }
 
     public void toggle(int position) {
-        Log.v("example adapter","toggle");
         this.setChecked(position, !isChecked(position));
     }
     
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
     {
-    	Log.v("example adapter", Integer.toString( (Integer) buttonView.getTag() ) + " is " + Boolean.toString(isChecked));    	
-         mCheckStates.put((Integer) buttonView.getTag(), isChecked);    
+         mCheckStates.put((Integer) buttonView.getTag(), isChecked);
     }
     
 	@Override

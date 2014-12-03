@@ -70,16 +70,27 @@
         android:layout_height="0dp"
         android:layout_weight="10"
         android:background="@drawable/layout_border_red"
+        android:orientation="horizontal"
     >
 	    <Button
-	        android:id="@+id/button1"
+	        android:id="@+id/btn_prevQuestion"
 	        android:layout_width="wrap_content"
 	        android:layout_height="match_parent"
             android:layout_weight="50"
-	        android:onClick="checkAnswer"
-	        android:text="Answer"
+	        android:onClick="prevQuestionClick"
+	        android:text="@string/runninqQuiz.btn.prevQuestion"
             android:layout_gravity="center"
             />
+        <Button
+            android:id="@+id/btn_nextQuestion"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="50"
+            android:onClick="nextQuestionClick"
+            android:text="@string/runninqQuiz.btn.nextQuestion"
+            android:layout_gravity="center"
+            />
+
 	    <TextView
 	        android:id="@+id/text_answer"
 	        android:layout_width="fill_parent"

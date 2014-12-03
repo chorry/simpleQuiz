@@ -11,7 +11,10 @@
     <string name="title_activity_main_menu">MainMenuActivity</string>
 
     <string name="main_menu.startExam">Start Exam</string>
-    <string name="main_menu.shortQuiz">10 random questions</string>
+    <string name="main_menu.shortQuiz">3 random questions</string>
     <string name="main_menu.stats">Stats</string>
+
+    <string name="runninqQuiz.btn.nextQuestion">Next</string>
+    <string name="runninqQuiz.btn.prevQuestion">Prev</string>
 
 </resources>

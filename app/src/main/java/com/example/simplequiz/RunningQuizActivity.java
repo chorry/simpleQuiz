@@ -2,7 +2,7 @@ package com.example.simplequiz;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,17 +12,19 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public class RunningQuizActivity extends ActionBarActivity {
-	private int currentQuestion;
-	private int maxQuestions;
-	private List<DbQuestion> QuestionList;
+
+    private DbQuestionDataSource dbQuestionDataSource;
+	private List<DbQuestion>     QuestionList;
+    private ArrayList            AnswersList;
+
+    private int currentQuestion;
+    private int maxQuestions;
+
 	private int answersCorrect = 0;
 	private int answersWrong   = 0;
-	private DbQuestionDataSource dbQuestionDataSource;
-	public List<String> questionAnswers;
 
 	public ListView answersView;
 
@@ -40,13 +42,11 @@ public class RunningQuizActivity extends ActionBarActivity {
         this.setTimeLimit( b.getInt("Time_limit") );
         this.setQuestionLimit( b.getInt("Questions_limit") );
 
-        //default is checkbox
         answersView = (ListView) findViewById(R.id.answers_listview);
 
-        //AnswersCheckBoxAdapter adapter = new AnswersCheckBoxAdapter(this, questionAnswers);
-        //answersView.setAdapter( adapter );
-
         this.init( );
+
+        this.showQuestion();
     }
 
 
@@ -78,16 +78,21 @@ public class RunningQuizActivity extends ActionBarActivity {
         QuestionList   = dbQuestionDataSource.getRandomQuestions(Integer.toString(this.questionLimit));
         dbQuestionDataSource.close();
 
-    	this.initQuestionList();
+        maxQuestions = QuestionList.size();
     	currentQuestion = 0;
-    	this.showQuestion();
+
+        this.initUserAnswers();
     }
-    
-    public void initQuestionList()
+
+    public void initUserAnswers()
     {
-    	maxQuestions = QuestionList.size();
+        this.AnswersList = new ArrayList( this.questionLimit );
+        for (int i=0; i<this.questionLimit; i++)
+        {
+            this.AnswersList.add(null);
+        }
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -113,7 +118,6 @@ public class RunningQuizActivity extends ActionBarActivity {
     public void checkEditTextAnswer()
     {
         DbQuestion qElement = QuestionList.get(currentQuestion);
-        StringBuilder result = new StringBuilder();
 
 
         List<String> currentAnswers =
@@ -122,20 +126,14 @@ public class RunningQuizActivity extends ActionBarActivity {
                                 .getEnteredText()
                                 .split("\\s*,\\s*")
                 );
-        Log.e("debug", "textFound:" + ((AnswersEditTextAdapter) answersView.getAdapter()).getEnteredText() );
-        //split string to ListArray
-        Log.e("debug","curAnswers:");
 
-        for(Iterator<String> i = currentAnswers.iterator(); i.hasNext(); )
-        {
-            String item = i.next();
-            Log.e("debug","answers:[" + item + "]");
-        }
+        UserAnswers<String> ua = new UserAnswers<String>();
+        ua.setUserAnswers( ((AnswersEditTextAdapter) answersView.getAdapter())
+                .getEnteredText() );
 
-
+        saveUserAnswersEditText(currentQuestion, ua);
 
         Toast.makeText(RunningQuizActivity.this, Boolean.toString( qElement.compareAnswer( currentAnswers )), Toast.LENGTH_SHORT).show();
-        result.delete(0, result.length());
 
     }
 
@@ -144,29 +142,26 @@ public class RunningQuizActivity extends ActionBarActivity {
         DbQuestion qElement = QuestionList.get(currentQuestion);
 
         List<String> currentAnswers = new ArrayList<String>();
-    	StringBuilder result = new StringBuilder();
 
         for(
-        		int i=0;
-        		i < ((AnswersCheckBoxAdapter) answersView.getAdapter()).mCheckStates.size();
-        		i++
-        	)
+            int i=0;
+        	i < ((AnswersCheckBoxAdapter) answersView.getAdapter()).mCheckStates.size();
+        	i++
+        )
         {
-        	Log.v("example","mCheckId=" + Integer.toString(i));
             if(
-                    ((AnswersCheckBoxAdapter) answersView.getAdapter())
-                            .mCheckStates.get(i)
-              )
+                ((AnswersCheckBoxAdapter) answersView.getAdapter()).mCheckStates.get(i)
+            )
             {
-            	result.append("box[" + Integer.toString(i) + "]:" + qElement.getAnswers().get(i));
-                result.append("\n");
                 currentAnswers.add(qElement.getAnswers().get(i));
             }
         }
 
-        Log.v("example","again:" + result.toString());
+        UserAnswers<SparseBooleanArray> ua = new UserAnswers<SparseBooleanArray>();
+        ua.setUserAnswers( ((AnswersCheckBoxAdapter) answersView.getAdapter()).mCheckStates );
+        saveUserAnswersCheckBox(currentQuestion, ua);
+
         Toast.makeText(RunningQuizActivity.this, Boolean.toString( qElement.compareAnswer( currentAnswers )), Toast.LENGTH_SHORT).show();
-        result.delete(0, result.length());
 
     }
 
@@ -191,6 +186,7 @@ public class RunningQuizActivity extends ActionBarActivity {
     public void prevQuestion()
     {
         checkAnswer();
+
         currentQuestion--;
         if (currentQuestion < 0  )
             currentQuestion = QuestionList.size() -1;
@@ -198,8 +194,41 @@ public class RunningQuizActivity extends ActionBarActivity {
         showQuestion();
     }
 
+    public void saveUserAnswersEditText(int num, UserAnswers<String> o)
+    {
+        this.AnswersList.set(num, o);
+    }
+
+    public void saveUserAnswersCheckBox(int num, UserAnswers<SparseBooleanArray> o)
+    {
+        this.AnswersList.set(num, o);
+    }
+
+    public SparseBooleanArray loadUserAnswersCheckBox(int num)
+    {
+        SparseBooleanArray a1 = null;
+        if ( this.AnswersList.get(num) != null)
+        {
+            a1 = ((UserAnswers<SparseBooleanArray>) this.AnswersList.get(num)).getUserAnswers();
+        }
+        return a1;
+    }
+
+    public String loadUserAnswersEditText(int num)
+    {
+        String a1 = null;
+        if (this.AnswersList.get(num) != null)
+        {
+            a1 = ((UserAnswers<String>) this.AnswersList.get(num)).getUserAnswers();
+        }
+        return a1;
+    }
+
+
+
     public void showQuestion()
     {
+
 
     	TextView questionView = (TextView) findViewById(R.id.text_question);
 
@@ -207,29 +236,35 @@ public class RunningQuizActivity extends ActionBarActivity {
     	
     	questionView.setText( qElement.getQuestion() );
     	
-    	this.questionAnswers = qElement.getAnswers();
-
-        this.updateAdapter( qElement.getType() );
+        this.updateAdapter( qElement.getType(), qElement.getAnswers() );
 
         if (qElement.getType().equals("CheckBox") )
         {
             ((AnswersCheckBoxAdapter) answersView.getAdapter()).updateAnswers(qElement.getAnswers());
+            if (this.loadUserAnswersCheckBox(currentQuestion) != null)
+            {
+                ((AnswersCheckBoxAdapter) answersView.getAdapter()).setCheckedStates(this.loadUserAnswersCheckBox(currentQuestion));
+            }
 
         }
 
         if (qElement.getType().equals("EditText") )
         {
-            ((AnswersEditTextAdapter) answersView.getAdapter()).updateAnswers();
+            String a = "";
+            if (this.loadUserAnswersEditText(currentQuestion) != null)
+            {
+                a = this.loadUserAnswersEditText(currentQuestion);
+            }
+            ((AnswersEditTextAdapter) answersView.getAdapter()).updateAnswers(a);
         }
     }
 
 
-    public void updateAdapter(String questionType)
+    public void updateAdapter(String questionType, List<String> questionAnswers)
     {
 
         if (questionType.equals("EditText") ) //&& ( answersView.getAdapter() instanceof AnswersCheckBoxAdapter) )
         {
-            Log.e("debug","new Edit adapter");
             AnswersEditTextAdapter adapter = new AnswersEditTextAdapter(this);
             answersView.setAdapter( adapter );
             adapter.notifyDataSetChanged();
@@ -237,7 +272,6 @@ public class RunningQuizActivity extends ActionBarActivity {
 
         if (questionType.equals("CheckBox") ) //&& ( answersView.getAdapter() instanceof AnswersEditTextAdapter) )
         {
-            Log.e("debug","new Box adapter");
             AnswersCheckBoxAdapter adapter = new AnswersCheckBoxAdapter(this, questionAnswers);
             answersView.setAdapter( adapter );
             adapter.notifyDataSetChanged();

@@ -3,7 +3,6 @@ package com.example.simplequiz;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,6 @@ import android.widget.EditText;
 
 public class AnswersEditTextAdapter extends BaseAdapter implements TextWatcher {
 
-    private String[] answers;
     private String   enteredText;
     private ViewHolder thisHolder;
     LayoutInflater inflater;
@@ -22,12 +20,14 @@ public class AnswersEditTextAdapter extends BaseAdapter implements TextWatcher {
     		Context context
     		)
     {
-    	Log.e("debug","EditText constructed");
         this.inflater = LayoutInflater.from(context);
     }
 
-    public void updateAnswers() {
-        this.enteredText = "";
+    public void updateAnswers(String s) {
+        if (thisHolder != null) {
+            thisHolder.answerEditText.setText(s);
+        }
+        this.enteredText = s;
         notifyDataSetChanged();
     }
 
@@ -47,13 +47,13 @@ public class AnswersEditTextAdapter extends BaseAdapter implements TextWatcher {
     
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-		ViewHolder thisHolder;
+		//ViewHolder thisHolder;
 		if (convertView == null) 
 		{
 			thisHolder = new ViewHolder();
 			convertView = this.inflater.inflate(R.layout.activity_answers_textedit, parent, false);
 			thisHolder.answerEditText = (EditText) convertView.findViewById(R.id.answerEditText);
-            thisHolder.answerEditText.setText("");
+            thisHolder.answerEditText.setText( this.enteredText );
             thisHolder.answerEditText.addTextChangedListener( this );
 			convertView.setTag(thisHolder);
 		}
@@ -61,7 +61,6 @@ public class AnswersEditTextAdapter extends BaseAdapter implements TextWatcher {
 		{
 			thisHolder = (ViewHolder) convertView.getTag();
 		}
-    	String answer =  "";
         this.enteredText = thisHolder.answerEditText.getEditableText().toString();
         return convertView;
     }
